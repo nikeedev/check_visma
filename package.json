@@ -11,11 +11,7 @@
   "type": "module",
   "license": "ISC",
   "dependencies": {
-    "puppeteer": "^21.6.0",
-    "puppeteer-core": "^21.6.0",
-    "dayjs": "^1.9.6",
-    "dotenv": "^8.2.0",
-    "express": "^4.17.1",
-    "node-fetch": "^2.6.1"
+    "dotenv": "16.4.7",
+    "puppeteer": "^24.4.0"
   }
 }

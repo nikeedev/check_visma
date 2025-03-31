@@ -4,12 +4,10 @@ import getEnv from './getenv.js';
 (async () => {
 
     const browser = await puppeteer.launch({headless: false});
-    const page = await browser.newPage();
+    const page = await browser.pages()[0];
 
     // Set screen size
     await page.setViewport({width: 1080, height: 1024});
-
-    await page.goto("about:blank");
 
     console.log("Loading website...");
     await page.goto("https://skeisvang-vgs.inschool.visma.no/");
@@ -73,22 +71,31 @@ import getEnv from './getenv.js';
         'domain': 'skeisvang-vgs.inschool.visma.no'
     }]
     
-    await page.goto("about:blank");
-    
-    await page.setCookie(...my_cookies);
-    
-    await page.goto("https://skeisvang-vgs.inschool.visma.no/#/app/timeline/");
-
     await page.waitForNavigation({
         waitUntil: "networkidle2",
-        timeout: 5000,
+        timeout: 12 * 1000, // 12 seconds
     });
-    
-    await page.waitForSelector("li.vsTimeline-line");
 
-    let raw_assessments = await page.$$("li.vsTimeline-line");
+    // await browser.setCookie(...my_cookies);
+    
+    await page.goto("https://skeisvang-vgs.inschool.visma.no/#/app/timeline/");
+    console.log(`Going to timeline`);
+
+    await page.waitForSelector("li.vsTimeline-item");
+
+    let raw_assessments = await page.$$("li.vsTimeline-item");
 
     let assessments = [];
+
+    /*
+    <div data-v-a35fc21c="" data-v-7468035d="" test-id="" class="vscard vsware-Timetable-Timeline-card" data-v-64861036=""><h1 data-v-7468035d="" data-v-a35fc21c="" class="vsware-Title">
+              6
+            </h1> <!----> <h4 data-v-7468035d="" data-v-a35fc21c="" class="vsware-Title">
+              Muntlig høring
+              <small data-v-7468035d="" data-v-a35fc21c="" class="vsware-Title__subtitle"> Tysk2/2STA_D_2DDA_Gr2/FSP6242 </small> <small data-v-7468035d="" data-v-a35fc21c="" class="vsware-Title__subtitle"> Tysk II </small> <small data-v-7468035d="" data-v-a35fc21c="" class="vsware-Title__subtitle">
+                Celine Grønås
+              </small></h4> <!----></div>
+    */
 
     raw_assessments.forEach(async el => {
         await el.waitForSelector('span');
@@ -99,13 +106,12 @@ import getEnv from './getenv.js';
         let grade = await el.$('section > div.vsware-Timetable-Timeline-card > h1');
         let grade_value = await el.evaluate(el => el.textContent, grade);
 
-        let info = await el.$('h4');
+        let info = await el.$('section > div.vsware-Timetable-Timeline-card > h4');
         let assessment_name = await el.evaluate(el => el.textContent, info);
-
-        let infos = await el.$$('.vsware-Title-Subtitle');
-
-        infos.forEach(
-    })
+        
+        let infos_value;
+        let infos = await el.$$('section > div.vsware-Timetable-Timeline-card > .vsware-Title-Subtitle');
+    });
 
     console.groupEnd();
 })();
